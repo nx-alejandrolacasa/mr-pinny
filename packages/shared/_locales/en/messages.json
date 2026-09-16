@@ -1,0 +1,19 @@
+{
+  "extName": { "message": "Mr. Pinny" },
+  "extDescription": { "message": "Keep your pinned tabs where you left them: set the URL each pin belongs on, restore it on demand, when idle or on startup, and open its links in new tabs." },
+  "popupTitle": { "message": "Mr. Pinny" },
+  "restoreAll": { "message": "Restore all" },
+  "restoreAllTitle": { "message": "Reload every pinned tab to its defined URL" },
+  "restoreTab": { "message": "Restore" },
+  "restoreTabTitle": { "message": "Reload this pinned tab to its defined URL" },
+  "urlLabel": { "message": "Pinned URL" },
+  "urlPlaceholder": { "message": "https://example.com/" },
+  "currentUrlPrefix": { "message": "Now on" },
+  "restoreWhenIdle": { "message": "Restore when idle" },
+  "openLinksInNewTab": { "message": "Open links in new tab" },
+  "startupLabel": { "message": "Restore pinned tabs on startup" },
+  "idleLabel": { "message": "Idle time (minutes)" },
+  "emptyState": { "message": "No pinned tabs yet. Pin a tab and it will show up here." },
+  "untitledTab": { "message": "Untitled tab" },
+  "invalidUrl": { "message": "Enter a full http:// or https:// URL." }
+}

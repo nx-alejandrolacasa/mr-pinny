@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mr. Pinny</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <header class="top">
+        <h1 data-i18n="popupTitle">Mr. Pinny</h1>
+        <button
+          type="button"
+          id="restore-all"
+          class="primary"
+          data-i18n="restoreAll"
+          data-i18n-title="restoreAllTitle"
+        >
+          Restore all
+        </button>
+      </header>
+      <ul id="pin-list"></ul>
+      <p id="empty-state" data-i18n="emptyState" hidden>
+        No pinned tabs yet. Pin a tab and it will show up here.
+      </p>
+      <p id="form-error" class="error" role="alert" hidden></p>
+      <section class="settings">
+        <label class="setting">
+          <span data-i18n="startupLabel">Restore pinned tabs on startup</span>
+          <input id="startup-input" type="checkbox" />
+        </label>
+        <label class="setting">
+          <span data-i18n="idleLabel">Idle time (minutes)</span>
+          <input id="idle-input" type="number" inputmode="numeric" step="1" />
+        </label>
+      </section>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

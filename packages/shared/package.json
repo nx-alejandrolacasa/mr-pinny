@@ -1,0 +1,16 @@
+{
+  "name": "@mr-pinny/shared",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Browser-agnostic pinned-tab configuration, reconciliation, background, content script and popup UI shared between Firefox and Chrome.",
+  "type": "module",
+  "exports": {
+    "./pins": "./src/pins.ts",
+    "./settings": "./src/settings.ts",
+    "./messages": "./src/messages.ts",
+    "./content": "./src/content.ts",
+    "./background": "./src/background.ts",
+    "./popup": "./src/popup.ts"
+  }
+}
