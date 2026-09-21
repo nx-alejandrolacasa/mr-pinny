@@ -1,5 +1,5 @@
 // Popup UI: one card per pinned tab (defined URL, restore, idle restore and
-// new-tab-links toggles) plus the global settings and "Restore all".
+// external-links toggles) plus the global settings and "Restore all".
 
 import { sendRequest, type PinView } from "./messages";
 import { isValidPinUrl, sameUrl, type PinPatch } from "./pins";
@@ -22,6 +22,12 @@ export async function runPopup(): Promise<void> {
   const startupInput = byId<HTMLInputElement>("startup-input");
   startupInput.checked = settings.restoreOnStartup;
   startupInput.addEventListener("change", () => void updateSettings({ restoreOnStartup: startupInput.checked }));
+
+  const subdomainsInput = byId<HTMLInputElement>("subdomains-input");
+  subdomainsInput.checked = settings.subdomainsAreSameSite;
+  subdomainsInput.addEventListener("change", () =>
+    void updateSettings({ subdomainsAreSameSite: subdomainsInput.checked })
+  );
 
   const idleInput = byId<HTMLInputElement>("idle-input");
   idleInput.min = String(IDLE_MIN_MINUTES);

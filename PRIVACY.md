@@ -20,14 +20,14 @@ The extension does **not**:
 - Use analytics, telemetry, crash reporting, or any user-identification mechanism.
 - Use cookies or any tracking technology.
 - Sell, rent, lease, share, or disclose data to advertisers, data brokers, or any third party.
-- Read page content. The content script only observes clicks on links, and only acts on them in pinned tabs where you enabled "Open links in new tab".
+- Read page content. The content script only observes clicks on links, and only acts on them in pinned tabs where you enabled "Open external links in new tab".
 - Modify your bookmarks, history, settings, or any other browser data.
 
 ## 3. Data stored by the extension
 
 The extension stores, in local extension storage (`storage.local`) on your device only:
 
-- **One config per pinned tab**: the pinned URL you set (initially the URL the tab was showing), whether to restore it when idle, whether to open its links in new tabs, and a random internal ID.
+- **One config per pinned tab**: the pinned URL you set (initially the URL the tab was showing), whether to restore it when idle, whether to open its external links in new tabs, and a random internal ID.
 - **Global settings**: whether to restore pinned tabs on startup and the idle time.
 
 It also keeps, in session storage (`storage.session`, cleared when the browser exits): which live tab belongs to which config, and when each pinned tab was last deselected, so idle restores can be timed.
@@ -45,7 +45,7 @@ To pair pinned tabs with their configs and to show them in the popup, the extens
 | `tabs` | List pinned tabs with their URL, title and favicon, navigate them back to their pinned URL, and open links from a pinned tab in a new tab. |
 | `storage` | Persist per-pin configs and settings locally, and the live tab pairing for the session. |
 | `alarms` | Wake up once a minute to check whether an idle pinned tab is due for a restore. |
-| Content script on `http://*/*` and `https://*/*` | Any tab can be pinned, so the click listener that implements "Open links in new tab" must be able to run on any site. In tabs where the option is off (or that are not pinned) the script does nothing. |
+| Content script on `http://*/*` and `https://*/*` | Any tab can be pinned, so the click listener that implements "Open external links in new tab" must be able to run on any site. In tabs where the option is off (or that are not pinned) the script does nothing. |
 
 ## 6. Legal basis for processing (EU/EEA users)
 

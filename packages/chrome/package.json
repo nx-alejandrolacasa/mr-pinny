@@ -1,9 +1,9 @@
 {
   "name": "@mr-pinny/chrome",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "license": "MIT",
-  "description": "Chrome extension that keeps your pinned tabs on the URL you chose: restore them on demand, when idle or on startup, and open their links in new tabs.",
+  "description": "Chrome extension that keeps your pinned tabs on the URL you chose: restore them on demand, when idle or on startup, and open their external links in new tabs.",
   "scripts": {
     "build": "tsx build.ts",
     "dev": "tsx build.ts && (tsx build.ts --watch & web-ext run --source-dir=dist --target=chromium)",

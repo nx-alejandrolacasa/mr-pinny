@@ -7,7 +7,7 @@ Text to paste into the **Privacy** and **Distribution** tabs of the chrome.googl
 > One sentence. CWS reviewers check that every permission ties back to this.
 
 ```
-Keep the user's pinned tabs on a URL the user chose, by restoring them to it on demand, after they have been idle, or on startup, and optionally opening their links in new tabs.
+Keep the user's pinned tabs on a URL the user chose, by restoring them to it on demand, after they have been idle, or on startup, and optionally opening their external links in new tabs.
 ```
 
 ## Permission justifications
@@ -35,7 +35,7 @@ A one-minute periodic alarm checks whether a pinned tab with "Restore when idle"
 ### Content script on `http://*/*` and `https://*/*`
 
 ```
-Implements the per-tab "Open links in new tab" option. Any tab can be pinned, so the click listener must be able to run on any site; the match list cannot be narrowed statically. On load the script asks the background whether its tab is a pinned tab with the option on. If not, it does nothing. It never reads page content — it only inspects the <a> element of a plain left-click and asks the background to open that URL in a new tab. No network requests.
+Implements the per-tab "Open external links in new tab" option. Any tab can be pinned, so the click listener must be able to run on any site; the match list cannot be narrowed statically. On load the script asks the background whether its tab is a pinned tab with the option on. If not, it does nothing. It never reads page content — it only inspects the <a> element of a plain left-click and asks the background to open that URL in a new tab when its host differs from the page's. No network requests.
 ```
 
 ## Remote code
@@ -83,7 +83,7 @@ https://github.com/nx-alejandrolacasa/mr-pinny/blob/main/PRIVACY.md
 ```
 Mr. Pinny keeps pinned tabs on a URL the user chooses: restore on
 demand, after the tab has been idle, or on startup, plus an option to
-open a pinned tab's links in new tabs.
+open a pinned tab's external links in new tabs.
 
 To test:
 1. Install the unpacked extension or the uploaded package and pin two
@@ -93,8 +93,8 @@ To test:
 3. Navigate a pinned tab elsewhere and reopen the popup: it shows
    "Now on <url>". Click Restore — the tab goes back.
 4. Edit the pinned URL and press Enter — the tab reloads there.
-5. Tick "Open links in new tab" and click a link in that tab — it
-   opens in a new tab and the pin stays put.
+5. Tick "Open external links in new tab" and click a link to another
+   site in that tab — it opens in a new tab and the pin stays put.
 6. Set Idle time to 1, tick "Restore when idle", navigate the pinned
    tab away and switch to another tab — within about two minutes the
    pin is back on its URL.
@@ -103,7 +103,7 @@ To test:
 
 Network behavior: none. The broad content-script match (http/https)
 exists only because any tab can be pinned; the script is inert unless
-its tab is a pinned tab with "Open links in new tab" on.
+its tab is a pinned tab with "Open external links in new tab" on.
 
 Build notes:
 - Source: https://github.com/nx-alejandrolacasa/mr-pinny (MIT license)
@@ -126,4 +126,4 @@ Build notes:
 - [ ] Justifications filled for `tabs`, `storage`, `alarms`, and the content-script host access
 - [ ] Screenshots uploaded (1280×800 or 640×400, at least one — see LISTING_CHROME.md, none captured yet)
 - [ ] Store icon = 128×128 PNG (auto-uses `icons.128` from manifest, but the listing slot is separate — upload `packages/shared/assets/icons/icon.png` there too)
-- [ ] Package uploaded: `mr-pinny-chrome-v1.0.0.zip` from the GitHub release
+- [ ] Package uploaded: `mr-pinny-chrome-v1.1.0.zip` from the GitHub release

@@ -1,6 +1,6 @@
 {
   "name": "@mr-pinny/shared",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "license": "MIT",
   "description": "Browser-agnostic pinned-tab configuration, reconciliation, background, content script and popup UI shared between Firefox and Chrome.",

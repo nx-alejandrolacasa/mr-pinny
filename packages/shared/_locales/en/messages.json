@@ -1,6 +1,6 @@
 {
   "extName": { "message": "Mr. Pinny" },
-  "extDescription": { "message": "Keep your pinned tabs where you left them: set the URL each pin belongs on, restore it on demand, when idle or on startup, and open its links in new tabs." },
+  "extDescription": { "message": "Keep your pinned tabs where you left them: set the URL each pin belongs on, restore it on demand, when idle or on startup, and open its external links in new tabs." },
   "popupTitle": { "message": "Mr. Pinny" },
   "restoreAll": { "message": "Restore all" },
   "restoreAllTitle": { "message": "Reload every pinned tab to its defined URL" },
@@ -10,8 +10,9 @@
   "urlPlaceholder": { "message": "https://example.com/" },
   "currentUrlPrefix": { "message": "Now on" },
   "restoreWhenIdle": { "message": "Restore when idle" },
-  "openLinksInNewTab": { "message": "Open links in new tab" },
+  "openLinksInNewTab": { "message": "Open external links in new tab" },
   "startupLabel": { "message": "Restore pinned tabs on startup" },
+  "subdomainsLabel": { "message": "Treat subdomains as the same site" },
   "idleLabel": { "message": "Idle time (minutes)" },
   "emptyState": { "message": "No pinned tabs yet. Pin a tab and it will show up here." },
   "untitledTab": { "message": "Untitled tab" },

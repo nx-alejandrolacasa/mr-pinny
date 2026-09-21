@@ -3,8 +3,8 @@
 //
 //   popup → background    list-pins, update-pin, restore-pin, restore-all
 //   content → background  get-link-policy (am I in a pinned tab that opens
-//                         links in new tabs?), open-link
-//   background → content  link-policy (the setting changed for this tab)
+//                         external links in new tabs?), open-link
+//   background → content  link-policy (the tab's option or a global setting changed)
 
 import type { PinConfig, PinPatch } from "./pins";
 
@@ -24,11 +24,12 @@ export type Request =
   | { type: "get-link-policy" }
   | { type: "open-link"; url: string };
 
-export type Push = { type: "link-policy"; enabled: boolean };
-
 export interface LinkPolicy {
   enabled: boolean;
+  subdomainsAreSameSite: boolean;
 }
+
+export type Push = { type: "link-policy" } & LinkPolicy;
 
 export function isRequest(value: unknown): value is Request {
   if (typeof value !== "object" || value === null) return false;
@@ -52,7 +53,7 @@ export function isRequest(value: unknown): value is Request {
 export function isPush(value: unknown): value is Push {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;
-  return v.type === "link-policy" && typeof v.enabled === "boolean";
+  return v.type === "link-policy" && typeof v.enabled === "boolean" && typeof v.subdomainsAreSameSite === "boolean";
 }
 
 export function sendRequest<T>(request: Request): Promise<T> {

@@ -17,7 +17,7 @@ Mr. Pinny
 > 132-character limit.
 
 ```
-Keep pinned tabs on the URL you chose: restore them on demand, when idle or at startup, and open their links in new tabs.
+Keep pinned tabs on the URL you chose: restore them on demand, when idle or at startup, and open their external links in new tabs.
 ```
 
 ## Description
@@ -36,7 +36,7 @@ PER PINNED TAB
 • Pinned URL — the page this tab belongs on. Only http:// and https:// URLs are accepted.
 • Restore — reload the tab to its pinned URL now.
 • Restore when idle — once the tab has sat unselected in its window for the idle time, it goes back to its pinned URL. Each idle stretch restores at most once, so a page that redirects after loading is not reloaded every minute.
-• Open links in new tab — plain left-clicks on links open a new tab next to the pin instead of navigating it. Modified clicks, middle clicks, downloads, links that already target another window and same-page anchors are left alone.
+• Open external links in new tab — plain left-clicks on links to another site open a new tab next to the pin instead of navigating it. Same-site links navigate as usual. A global option decides whether other subdomains count as the same site. Modified clicks, middle clicks, downloads, links that already target another window and same-page anchors are left alone.
 
 GLOBAL
 
@@ -100,6 +100,12 @@ If we don't have these yet, skip them; they can be added in a later edit without
 ## Release notes
 
 > CWS shows version notes on the item's update. Paste the latest entry as plain text. Newest first.
+
+### v1.1.0
+
+```
+"Open links in new tab" is now "Open external links in new tab": only links to another site open in a new tab, same-site links navigate as usual. New global option "Treat subdomains as the same site" (on by default) decides whether other subdomains count as external. "Restore pinned tabs on startup" is now on by default and the default idle time is 120 minutes. Still zero network requests.
+```
 
 ### v1.0.0
 

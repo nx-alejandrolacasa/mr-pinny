@@ -32,7 +32,7 @@ Open the popup and every pinned tab is listed with its pinned URL, which starts 
 - **Pinned URL** — the page this tab belongs on. Only `http://` and `https://` URLs are accepted.
 - **Restore** — reload the tab to its pinned URL now.
 - **Restore when idle** — once the tab has sat unselected in its window for the idle time, it goes back to its pinned URL. Each idle stretch restores at most once, so a page that redirects after loading is not reloaded every minute.
-- **Open links in new tab** — plain left-clicks on links open a new tab next to the pin instead of navigating it. Firefox already does this for links to other sites; Mr. Pinny extends it to same-site links. Modified clicks, middle clicks, downloads, links that already target another window and same-page anchors are left alone.
+- **Open external links in new tab** — plain left-clicks on links to another site open a new tab next to the pin instead of navigating it. Same-site links navigate as usual. A global option decides whether other subdomains count as the same site. Modified clicks, middle clicks, downloads, links that already target another window and same-page anchors are left alone.
 
 **Global**
 
@@ -90,7 +90,7 @@ Permissions:
   tabId -> config pairing and idle timestamps in storage.session.
 - alarms: the one-minute idle check.
 - Content script on all http/https URLs: any tab can be pinned, so
-  the click listener that implements "Open links in new tab" must be
+  the click listener that implements "Open external links in new tab" must be
   able to run on any site. It asks the background whether its tab is a
   pinned tab with that option on; if not, it does nothing. It never
   reads page content — it only inspects the clicked <a> element.
@@ -108,8 +108,8 @@ To test:
 3. Navigate a pinned tab elsewhere, reopen the popup: it shows
    "Now on <url>". Click Restore — the tab goes back.
 4. Edit the pinned URL field and press Enter — the tab reloads there.
-5. Tick "Open links in new tab", click a same-site link in that tab —
-   it opens in a new tab and the pin stays put.
+5. Tick "Open external links in new tab", click a link to another site
+   in that tab — it opens in a new tab and the pin stays put.
 6. Set Idle time to 1, tick "Restore when idle", navigate the pinned
    tab away and select another tab — within about two minutes the pin
    is back on its URL.
@@ -137,6 +137,12 @@ build is a plain esbuild bundle plus static asset copies.
 ## Release notes
 
 > Paste the latest entry into the version's "Release notes" / "What's new" field. Newest first.
+
+### v1.1.0
+
+```
+"Open links in new tab" is now "Open external links in new tab": only links to another site open in a new tab, same-site links navigate as usual. New global option "Treat subdomains as the same site" (on by default) decides whether other subdomains count as external. "Restore pinned tabs on startup" is now on by default and the default idle time is 120 minutes. Still zero network requests.
+```
 
 ### v1.0.0
 

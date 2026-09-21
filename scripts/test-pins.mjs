@@ -13,6 +13,7 @@ import {
   DEFAULT_SETTINGS,
   normalizeSettings,
 } from "../packages/shared/src/settings.ts";
+import { isSameSite, registrableDomain } from "../packages/shared/src/sites.ts";
 
 const tab = (id, url, index = id, windowId = 1) => ({ id, url, index, windowId });
 const pin = (id, url, extra = {}) => ({
@@ -138,10 +139,29 @@ assert.deepEqual(normalizeSettings(undefined), DEFAULT_SETTINGS);
 assert.deepEqual(normalizeSettings({ restoreOnStartup: "yes", idleMinutes: "15" }), {
   restoreOnStartup: false,
   idleMinutes: 15,
+  subdomainsAreSameSite: true,
+});
+assert.deepEqual(normalizeSettings({}), DEFAULT_SETTINGS);
+assert.deepEqual(normalizeSettings({ restoreOnStartup: false, subdomainsAreSameSite: false }), {
+  restoreOnStartup: false,
+  idleMinutes: 120,
+  subdomainsAreSameSite: false,
 });
 assert.equal(clampIdleMinutes(0), 1);
 assert.equal(clampIdleMinutes(99999), 1440);
 assert.equal(clampIdleMinutes("abc"), DEFAULT_SETTINGS.idleMinutes);
 assert.equal(clampIdleMinutes(4.6), 5);
+
+// Sites
+assert.equal(registrableDomain("mail.google.com"), "google.com");
+assert.equal(registrableDomain("google.com"), "google.com");
+assert.equal(registrableDomain("localhost"), "localhost");
+assert.equal(registrableDomain("www.bbc.co.uk"), "bbc.co.uk");
+assert.equal(registrableDomain("bbc.co.uk"), "bbc.co.uk");
+assert.equal(registrableDomain("a.b.example.org"), "example.org");
+assert(isSameSite("mail.google.com", "docs.google.com", true));
+assert(!isSameSite("mail.google.com", "docs.google.com", false));
+assert(!isSameSite("www.bbc.co.uk", "www.guardian.co.uk", true));
+assert(isSameSite("example.com", "example.com", false));
 
 console.log("test-pins: ok");

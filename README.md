@@ -14,23 +14,27 @@ starts out as whatever the tab was showing when it was first seen.
 | Pinned URL                 | Edit it and the tab reloads to the new URL right away. Only `http://` and `https://` URLs are accepted. |
 | Restore                    | Reloads the tab to its pinned URL now.                                                           |
 | Restore when idle          | Once the tab has sat unselected in its window for the idle time, it reloads to its pinned URL.  |
-| Open links in new tab      | Plain left-clicks on links in the tab open a new tab next to it instead of navigating the pin.   |
+| Open external links in new tab | Plain left-clicks on links to another host open a new tab next to the pin instead of navigating it. Same-host links navigate as usual. |
 
 "Idle" means the tab is not the selected tab of its window. Each idle stretch
 restores at most once, so a page that redirects somewhere else after loading
 does not get reloaded every minute. Selecting the tab again starts a new
 stretch.
 
-"Open links in new tab" leaves alone modified clicks (Cmd/Ctrl/Shift/Alt),
-middle clicks, downloads, links that already target another frame or window,
-non-http(s) links and same-page anchors.
+"Open external links in new tab" compares the link's host with the tab's.
+With "Treat subdomains as the same site" on (the default), a link from
+`mail.example.com` to `docs.example.com` is internal; off, only the exact
+same host is. It leaves alone
+modified clicks (Cmd/Ctrl/Shift/Alt), middle clicks, downloads, links that
+already target another frame or window and non-http(s) links.
 
 ## Global
 
 | Setting / action                | What it does                                                        |
 | ------------------------------- | ------------------------------------------------------------------- |
-| Restore pinned tabs on startup  | When the browser starts, every pinned tab is reloaded to its pinned URL. |
-| Idle time (minutes)             | How long a tab must be unselected before "Restore when idle" fires. Default 30. |
+| Restore pinned tabs on startup  | When the browser starts, every pinned tab is reloaded to its pinned URL. On by default. |
+| Treat subdomains as the same site | With this on, "Open external links in new tab" keeps links to other subdomains of the pinned site in the tab. On by default. |
+| Idle time (minutes)             | How long a tab must be unselected before "Restore when idle" fires. Default 120. |
 | Restore all                     | Reloads every pinned tab to its pinned URL now.                     |
 
 ## How pins are tracked

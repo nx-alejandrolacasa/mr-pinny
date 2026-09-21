@@ -14,7 +14,7 @@ import {
   type PinPatch,
   type TabPinMap,
 } from "./pins";
-import { loadSettings } from "./settings";
+import { loadSettings, SETTINGS_STORAGE_KEY } from "./settings";
 import { isRequest, type LinkPolicy, type PinView, type Push, type Request } from "./messages";
 
 const MAP_KEY = "tabPins";
@@ -54,6 +54,10 @@ export function runBackground(): void {
   });
 
   chrome.tabs.onActivated.addListener(() => void serialized(tickIdle));
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && SETTINGS_STORAGE_KEY in changes) void serialized(pushLinkPolicyToAll);
+  });
 
   chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === IDLE_ALARM) void serialized(tickIdle);
@@ -121,7 +125,7 @@ async function updatePin(id: string, patch: PinPatch): Promise<void> {
   if (tabId === undefined) return;
   if (next.url !== previous.url && next.url) await restoreTab(tabId, next.url);
   if (next.openLinksInNewTab !== previous.openLinksInNewTab) {
-    pushLinkPolicy(tabId, next.openLinksInNewTab);
+    await pushLinkPolicy(tabId, next.openLinksInNewTab);
   }
 }
 
@@ -168,15 +172,27 @@ async function restoreTab(tabId: number, url: string): Promise<void> {
 // --- content scripts -------------------------------------------------------
 
 async function linkPolicy(tabId: number | undefined): Promise<LinkPolicy> {
-  if (tabId === undefined) return { enabled: false };
+  const { subdomainsAreSameSite } = await loadSettings();
+  if (tabId === undefined) return { enabled: false, subdomainsAreSameSite };
   const { pins, map } = await syncState({ keepUnmatched: true });
   const pin = pins.find((p) => p.id === map[String(tabId)]);
-  return { enabled: pin?.openLinksInNewTab === true };
+  return { enabled: pin?.openLinksInNewTab === true, subdomainsAreSameSite };
 }
 
-function pushLinkPolicy(tabId: number, enabled: boolean): void {
-  const push: Push = { type: "link-policy", enabled };
-  chrome.tabs.sendMessage(tabId, push).catch(() => {});
+async function pushLinkPolicy(tabId: number, enabled: boolean): Promise<void> {
+  const { subdomainsAreSameSite } = await loadSettings();
+  const push: Push = { type: "link-policy", enabled, subdomainsAreSameSite };
+  await chrome.tabs.sendMessage(tabId, push).catch(() => {});
+}
+
+async function pushLinkPolicyToAll(): Promise<void> {
+  const { pins, map, tabs } = await syncState({ keepUnmatched: true });
+  await Promise.all(
+    tabs.map((tab) => {
+      const pin = pins.find((p) => p.id === map[String(tab.id)]);
+      return tab.id !== undefined && pin?.openLinksInNewTab ? pushLinkPolicy(tab.id, true) : Promise.resolve();
+    })
+  );
 }
 
 async function openLink(url: string, opener: chrome.tabs.Tab | undefined): Promise<void> {
@@ -244,7 +260,7 @@ async function syncState({ keepUnmatched = false } = {}): Promise<State> {
 async function pinnedTabAppeared(tabId: number): Promise<void> {
   const { pins, map } = await syncState({ keepUnmatched: true });
   const pin = pins.find((p) => p.id === map[String(tabId)]);
-  if (pin?.openLinksInNewTab) pushLinkPolicy(tabId, true);
+  if (pin?.openLinksInNewTab) await pushLinkPolicy(tabId, true);
 }
 
 async function forgetTab(tabId: number): Promise<void> {
@@ -254,7 +270,7 @@ async function forgetTab(tabId: number): Promise<void> {
   if (!pinId) return;
   delete map[key];
   await Promise.all([savePins(pins.filter((pin) => pin.id !== pinId)), writeMap(map)]);
-  pushLinkPolicy(tabId, false);
+  await pushLinkPolicy(tabId, false);
 }
 
 function tabIdFor(map: TabPinMap, pinId: string): number | undefined {

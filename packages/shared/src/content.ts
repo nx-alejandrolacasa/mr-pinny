@@ -1,26 +1,27 @@
-// Content script: when this tab is pinned and "open links in new tab" is on,
-// plain left-clicks on http(s) links open a new tab instead of navigating
-// the pinned one. Modified clicks, downloads, links that already target
-// another frame and same-page anchors are left alone.
+// Content script: when this tab is pinned and "open external links in new
+// tab" is on, plain left-clicks on http(s) links to another host open a new
+// tab instead of navigating the pinned one. Same-site links, modified clicks,
+// downloads and links that already target another frame are left alone.
 
 import { isPush, sendRequest, type LinkPolicy } from "./messages";
+import { isSameSite } from "./sites";
 
-let enabled = false;
+let policy: LinkPolicy = { enabled: false, subdomainsAreSameSite: true };
 
 export function runContent(): void {
   chrome.runtime.onMessage.addListener((message: unknown) => {
-    if (isPush(message)) enabled = message.enabled;
+    if (isPush(message)) policy = message;
   });
   sendRequest<LinkPolicy | undefined>({ type: "get-link-policy" })
-    .then((policy) => {
-      enabled = policy?.enabled === true;
+    .then((current) => {
+      if (current) policy = current;
     })
     .catch(() => {});
   document.addEventListener("click", onClick, true);
 }
 
 function onClick(event: MouseEvent): void {
-  if (!enabled || event.defaultPrevented || event.button !== 0) return;
+  if (!policy.enabled || event.defaultPrevented || event.button !== 0) return;
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
   const link = event.composedPath().find(
@@ -36,13 +37,9 @@ function onClick(event: MouseEvent): void {
     return;
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") return;
-  if (withoutHash(url) === withoutHash(new URL(location.href))) return;
+  if (isSameSite(url.hostname, location.hostname, policy.subdomainsAreSameSite)) return;
 
   event.preventDefault();
   event.stopImmediatePropagation();
   sendRequest({ type: "open-link", url: url.href }).catch(() => {});
-}
-
-function withoutHash(url: URL): string {
-  return url.origin + url.pathname + url.search;
 }
