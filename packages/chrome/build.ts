@@ -9,7 +9,7 @@ import { readFile, writeFile, mkdir, cp, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateDist } from "../shared/src/build-helpers/validate-dist.ts";
-import { renderIconPng } from "../shared/src/build-helpers/icon-png.ts";
+import { renderIconPng, renderToolbarPng, TOOLBAR_DARK, TOOLBAR_LIGHT } from "../shared/src/build-helpers/icon-png.ts";
 
 const REQUIRED_DIST_FILES = [
   "manifest.json",
@@ -18,8 +18,12 @@ const REQUIRED_DIST_FILES = [
   "popup.js",
   "content.js",
   "background.js",
+  "offscreen.html",
+  "offscreen.js",
   "_locales/en/messages.json",
   "icons/icon.png",
+  "icons/toolbar-dark-16.png",
+  "icons/toolbar-light-32.png",
 ] as const;
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -45,6 +49,12 @@ async function copyAssets(version: string) {
   }
   await mkdir(path.join(DIST, "icons"), { recursive: true });
   await writeFile(path.join(DIST, "icons", "icon.png"), renderIconPng());
+  for (const [name, color] of [["dark", TOOLBAR_DARK], ["light", TOOLBAR_LIGHT]] as const) {
+    for (const size of [16, 32]) {
+      await writeFile(path.join(DIST, "icons", `toolbar-${name}-${size}.png`), renderToolbarPng(size, color));
+    }
+  }
+  await writeFile(path.join(DIST, "offscreen.html"), '<!doctype html>\n<script src="offscreen.js"></script>\n');
   await cp(sharedLocales, path.join(DIST, "_locales"), { recursive: true });
 
   const manifest = JSON.parse(await readFile(path.join(HERE, "manifest.json"), "utf8"));
@@ -80,6 +90,7 @@ async function main() {
     bundleOptions("content.ts", "content.js"),
     bundleOptions("popup.ts", "popup.js"),
     bundleOptions("background.ts", "background.js"),
+    bundleOptions("offscreen.ts", "offscreen.js"),
   ];
 
   if (WATCH) {

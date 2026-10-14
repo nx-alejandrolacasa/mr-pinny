@@ -32,6 +32,12 @@ Persists each pinned tab's settings (pinned URL, restore-when-idle, open-links-i
 A one-minute periodic alarm checks whether a pinned tab with "Restore when idle" enabled has been unselected for longer than the configured idle time, so the background service worker does not need to stay alive. Nothing else uses it.
 ```
 
+### `offscreen`
+
+```
+Service workers can't evaluate media queries, so a hidden offscreen document (reason MATCH_MEDIA) watches prefers-color-scheme and tells the background whether the browser is in light or dark mode. The background then shows a dark or a white toolbar icon so it stays visible. The document does nothing else and loads no remote content.
+```
+
 ### Content script on `http://*/*` and `https://*/*`
 
 ```
@@ -123,7 +129,7 @@ Build notes:
 - [ ] Listing language matches `LISTING_CHROME.md` (summary ≤ 132 chars, description pasted as plain text)
 - [ ] Privacy practices tab green-checked (all three certifications ticked, privacy policy URL present)
 - [ ] Single purpose statement matches the one above
-- [ ] Justifications filled for `tabs`, `storage`, `alarms`, and the content-script host access
+- [ ] Justifications filled for `tabs`, `storage`, `alarms`, `offscreen`, and the content-script host access
 - [ ] Screenshots uploaded (1280×800 or 640×400, at least one — see LISTING_CHROME.md, none captured yet)
 - [ ] Store icon = 128×128 PNG (auto-uses `icons.128` from manifest, but the listing slot is separate — upload `packages/shared/assets/icons/icon.png` there too)
-- [ ] Package uploaded: `mr-pinny-chrome-v1.1.0.zip` from the GitHub release
+- [ ] Package uploaded: `mr-pinny-chrome-v1.2.0.zip` from the GitHub release

@@ -19,6 +19,8 @@ const REQUIRED_DIST_FILES = [
   "background.js",
   "_locales/en/messages.json",
   "icons/icon.svg",
+  "icons/toolbar-dark.svg",
+  "icons/toolbar-light.svg",
 ] as const;
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

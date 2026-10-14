@@ -1,13 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#4a5ac8"/>
-      <stop offset="1" stop-color="#7c4dff"/>
-    </linearGradient>
-  </defs>
-  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
-  <g transform="rotate(32 64 64)">
-    <path d="M59.5 66 L68.5 66 L64 108 Z" fill="#ffffff" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
-    <circle cx="64" cy="46" r="22" fill="#ffffff"/>
+  <rect width="128" height="128" rx="28" fill="#000000"/>
+  <g transform="translate(-8.5 8.5) rotate(45 64 64)" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M40 22 H88"/>
+    <path d="M51 22 V52 L35 66 H93 L77 52 V22"/>
+    <path d="M64 66 V106"/>
   </g>
 </svg>

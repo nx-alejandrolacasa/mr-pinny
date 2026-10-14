@@ -101,6 +101,12 @@ If we don't have these yet, skip them; they can be added in a later edit without
 
 > CWS shows version notes on the item's update. Paste the latest entry as plain text. Newest first.
 
+### v1.2.0
+
+```
+New icon: a classic pushpin, black and white in the store and as a plain glyph in the toolbar that follows your browser's light or dark theme. No functional changes. Still zero network requests.
+```
+
 ### v1.1.0
 
 ```

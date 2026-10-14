@@ -80,9 +80,12 @@ npm run lint             # web-ext lint (firefox dist)
 Load `packages/chrome/dist` via `chrome://extensions` → "Load unpacked", or
 `packages/firefox/dist` via `about:debugging` → "Load Temporary Add-on".
 
-The Chrome icon PNG is rendered from the SVG design at build time
-(`packages/shared/src/build-helpers/icon-png.ts`), so no binary lives in the
-repo; `node scripts/generate-icon.mjs` writes the same PNG to
+The toolbar icon is the pin without the background, dark or white to
+follow the browser's light or dark mode: Firefox picks it through
+`theme_icons`, Chrome through an offscreen document that watches
+`prefers-color-scheme`. Chrome's PNGs are rendered from the SVG design at
+build time (`packages/shared/src/build-helpers/icon-png.ts`);
+`node scripts/generate-icon.mjs` writes the same PNG to
 `packages/shared/assets/icons/icon.png` for a store listing.
 
 ## Privacy

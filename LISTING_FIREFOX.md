@@ -138,6 +138,12 @@ build is a plain esbuild bundle plus static asset copies.
 
 > Paste the latest entry into the version's "Release notes" / "What's new" field. Newest first.
 
+### v1.2.0
+
+```
+New icon: a classic pushpin, black and white in the store and as a plain glyph in the toolbar that follows your browser's light or dark theme. No functional changes. Still zero network requests.
+```
+
 ### v1.1.0
 
 ```

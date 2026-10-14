@@ -1,23 +1,30 @@
-// Rasterize the extension icon (same design as assets/icons/icon.svg) to a
-// 128×128 PNG for Chrome, which doesn't accept SVG manifest icons. Pure
-// Node, no dependencies: signed-distance fields for the shapes and a
-// minimal PNG encoder. The Chrome build calls it, so no binary is committed.
+// Rasterize the extension icon (same design as assets/icons/icon.svg) and
+// the background-free toolbar glyph (assets/icons/toolbar-*.svg) to PNGs for
+// Chrome, which doesn't accept SVG manifest icons. Pure Node, no
+// dependencies: signed-distance fields for the shapes and a minimal PNG
+// encoder. The Chrome build calls it, so no binary is committed.
 import { deflateSync } from "node:zlib";
 
 const SIZE = 128;
 
-const GRAD_A = [74, 90, 200]; // #4a5ac8
-const GRAD_B = [124, 77, 255]; // #7c4dff
+const BACKGROUND = [0, 0, 0];
 const PAPER = [255, 255, 255];
+export const TOOLBAR_DARK = [0x1f, 0x23, 0x28];
+export const TOOLBAR_LIGHT = [255, 255, 255];
+// The glyph's bounding square, the toolbar SVGs' viewBox.
+const TOOLBAR_ORIGIN = 22;
+const TOOLBAR_SPAN = 84;
 
-const PIN_ROTATION_DEG = 32;
-const PIN_PIVOT: readonly [number, number] = [64, 64];
-const NEEDLE: readonly (readonly [number, number])[] = [
-  [59.5, 66],
-  [68.5, 66],
-  [64, 108],
+const HALF_STROKE = 4;
+type Point = readonly [number, number];
+const PIN_TILT_DEG = 45;
+const PIN_PIVOT: Point = [64, 64];
+const PIN_RECENTER: Point = [-8.5, 8.5];
+const PIN_STROKES: readonly (readonly Point[])[] = [
+  [[40, 22], [88, 22]],
+  [[51, 22], [51, 52], [35, 66], [93, 66], [77, 52], [77, 22]],
+  [[64, 66], [64, 106]],
 ];
-const NEEDLE_STROKE = 1.5;
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -41,50 +48,37 @@ function roundedRectSDF(
   );
 }
 
-function circleSDF(x: number, y: number, cx: number, cy: number, r: number): number {
-  return Math.hypot(x - cx, y - cy) - r;
+function segmentSDF(x: number, y: number, [ax, ay]: Point, [bx, by]: Point): number {
+  const ex = bx - ax;
+  const ey = by - ay;
+  const t = clamp01(((x - ax) * ex + (y - ay) * ey) / (ex * ex + ey * ey));
+  return Math.hypot(x - ax - ex * t, y - ay - ey * t) - HALF_STROKE;
 }
 
-function polygonSDF(px: number, py: number, vertices: typeof NEEDLE): number {
-  const first = vertices[0];
-  if (!first) return Infinity;
-  let d = (px - first[0]) ** 2 + (py - first[1]) ** 2;
-  let sign = 1;
-  for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
-    const a = vertices[i];
-    const b = vertices[j];
-    if (!a || !b) continue;
-    const ex = b[0] - a[0];
-    const ey = b[1] - a[1];
-    const wx = px - a[0];
-    const wy = py - a[1];
-    const t = clamp01((wx * ex + wy * ey) / (ex * ex + ey * ey));
-    const qx = wx - ex * t;
-    const qy = wy - ey * t;
-    d = Math.min(d, qx * qx + qy * qy);
-    const c1 = py >= a[1];
-    const c2 = py < b[1];
-    const c3 = ex * wy > ey * wx;
-    if ((c1 && c2 && c3) || (!c1 && !c2 && !c3)) sign = -sign;
+function polylineSDF(x: number, y: number, points: readonly Point[]): number {
+  let d = Infinity;
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    if (a && b) d = Math.min(d, segmentSDF(x, y, a, b));
   }
-  return sign * Math.sqrt(d);
+  return d;
 }
 
-// The SVG draws the pin upright and rotates the group; here the sample point
-// is rotated the other way instead.
-function unrotate(x: number, y: number): [number, number] {
-  const angle = (-PIN_ROTATION_DEG * Math.PI) / 180;
+// The SVG tilts the upright pin and shifts it back to centre; here the
+// sample point is taken through the inverse instead.
+function untilt(x: number, y: number): Point {
+  const angle = (-PIN_TILT_DEG * Math.PI) / 180;
   const [cx, cy] = PIN_PIVOT;
-  const dx = x - cx;
-  const dy = y - cy;
+  const [ox, oy] = PIN_RECENTER;
+  const dx = x - ox - cx;
+  const dy = y - oy - cy;
   return [cx + dx * Math.cos(angle) - dy * Math.sin(angle), cy + dx * Math.sin(angle) + dy * Math.cos(angle)];
 }
 
-function paintPin(rgb: number[], x: number, y: number): number[] {
-  const [px, py] = unrotate(x, y);
-  const needle = polygonSDF(px, py, NEEDLE);
-  const pin = Math.min(needle - NEEDLE_STROKE, circleSDF(px, py, 64, 46, 22));
-  return blend(rgb, PAPER, coverage(pin));
+function pinSDF(x: number, y: number): number {
+  const [px, py] = untilt(x, y);
+  return Math.min(...PIN_STROKES.map((stroke) => polylineSDF(px, py, stroke)));
 }
 
 function pixel(x: number, y: number): number[] {
@@ -93,9 +87,7 @@ function pixel(x: number, y: number): number[] {
   const shape = coverage(roundedRectSDF(cx, cy, SIZE / 2, SIZE / 2, SIZE / 2, SIZE / 2, 28));
   if (shape === 0) return [0, 0, 0, 0];
 
-  const t = (x + y) / (2 * (SIZE - 1));
-  let rgb = GRAD_A.map((a, i) => mix(a, GRAD_B[i] ?? a, t));
-  rgb = paintPin(rgb, cx, cy);
+  const rgb = blend(BACKGROUND, PAPER, coverage(pinSDF(cx, cy)));
 
   return [...rgb.map(Math.round), Math.round(shape * 255)];
 }
@@ -123,18 +115,30 @@ function chunk(type: string, data: Buffer): Buffer {
 }
 
 export function renderIconPng(): Buffer {
-  const raw = Buffer.alloc(SIZE * (SIZE * 4 + 1));
-  for (let y = 0; y < SIZE; y++) {
-    const row = y * (SIZE * 4 + 1);
+  return encodePng(SIZE, pixel);
+}
+
+export function renderToolbarPng(size: number, color: readonly number[]): Buffer {
+  const scale = TOOLBAR_SPAN / size;
+  return encodePng(size, (x, y) => {
+    const distance = pinSDF(TOOLBAR_ORIGIN + (x + 0.5) * scale, TOOLBAR_ORIGIN + (y + 0.5) * scale);
+    return [...color, Math.round(coverage(distance / scale) * 255)];
+  });
+}
+
+function encodePng(size: number, pixelAt: (x: number, y: number) => number[]): Buffer {
+  const raw = Buffer.alloc(size * (size * 4 + 1));
+  for (let y = 0; y < size; y++) {
+    const row = y * (size * 4 + 1);
     raw[row] = 0; // filter: none
-    for (let x = 0; x < SIZE; x++) {
-      raw.set(pixel(x, y), row + 1 + x * 4);
+    for (let x = 0; x < size; x++) {
+      raw.set(pixelAt(x, y), row + 1 + x * 4);
     }
   }
 
   const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(SIZE, 0);
-  ihdr.writeUInt32BE(SIZE, 4);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
   ihdr.set([8, 6, 0, 0, 0], 8); // 8-bit RGBA
 
   return Buffer.concat([
