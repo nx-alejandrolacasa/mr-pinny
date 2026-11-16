@@ -15,13 +15,14 @@ import {
   type TabPinMap,
 } from "./pins";
 import { loadSettings, SETTINGS_STORAGE_KEY } from "./settings";
-import { isRequest, type LinkPolicy, type PinView, type Push, type Request } from "./messages";
+import { isRequest, PAGE_PROBE, type LinkPolicy, type PinView, type Push, type Request } from "./messages";
 
 const MAP_KEY = "tabPins";
 const IDLE_SINCE_KEY = "idleSince";
 const IDLE_RESTORED_KEY = "idleRestored";
 const IDLE_ALARM = "idle-check";
 const STARTUP_RESTORE_DELAY_MS = 2500;
+const PAGE_PROBE_TIMEOUT_MS = 1000;
 
 type Stamps = Record<string, number>;
 
@@ -151,22 +152,40 @@ async function restoreAllOnStartup(): Promise<void> {
   if (!restoreOnStartup) return;
   const { pins, map, tabs } = await syncState({ keepUnmatched: true });
   await Promise.all(
-    tabs.map((tab) => {
+    tabs.map(async (tab) => {
       const pin = pins.find((p) => p.id === map[String(tab.id)]);
-      return pin && tab.id !== undefined ? restoreTab(tab.id, pin.url) : Promise.resolve();
+      if (!pin || tab.id === undefined) return;
+      await restoreTab(tab.id, pin.url, { pageLoaded: await pageHasLoaded(tab.id) });
     })
   );
 }
 
-async function restoreTab(tabId: number, url: string): Promise<void> {
+// Firefox drops reload() on a tab whose page is not loaded (discarded, or
+// still queued by session restore) and keeps the cached copy; navigating
+// such a tab does fetch it.
+async function restoreTab(tabId: number, url: string, { pageLoaded = true } = {}): Promise<void> {
   if (!isValidPinUrl(url)) return;
   try {
     const tab = await chrome.tabs.get(tabId);
-    if (sameUrl(tabUrl(tab), url)) await chrome.tabs.reload(tabId);
+    const reloadWorks = pageLoaded && !tab.discarded;
+    if (reloadWorks && sameUrl(tabUrl(tab), url)) await chrome.tabs.reload(tabId);
     else await chrome.tabs.update(tabId, { url });
   } catch {
     // The tab is gone or the browser refused the navigation; nothing to do.
   }
+}
+
+// Tabs queued by session restore are not flagged as discarded; only a
+// content script answering tells a loaded page from a queued one.
+async function pageHasLoaded(tabId: number): Promise<boolean> {
+  const contentScriptAnswered = chrome.tabs.sendMessage(tabId, PAGE_PROBE).then(
+    () => true,
+    () => false
+  );
+  const frozenPageNeverAnswers = new Promise<boolean>((resolve) =>
+    setTimeout(() => resolve(true), PAGE_PROBE_TIMEOUT_MS)
+  );
+  return Promise.race([contentScriptAnswered, frozenPageNeverAnswers]);
 }
 
 // --- content scripts -------------------------------------------------------

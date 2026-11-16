@@ -132,4 +132,4 @@ Build notes:
 - [ ] Justifications filled for `tabs`, `storage`, `alarms`, `offscreen`, and the content-script host access
 - [ ] Screenshots uploaded (1280×800 or 640×400, at least one — see LISTING_CHROME.md, none captured yet)
 - [ ] Store icon = 128×128 PNG (auto-uses `icons.128` from manifest, but the listing slot is separate — upload `packages/shared/assets/icons/icon.png` there too)
-- [ ] Package uploaded: `mr-pinny-chrome-v1.2.0.zip` from the GitHub release
+- [ ] Package uploaded: `mr-pinny-chrome-v1.2.1.zip` from the GitHub release

@@ -101,6 +101,12 @@ If we don't have these yet, skip them; they can be added in a later edit without
 
 > CWS shows version notes on the item's update. Paste the latest entry as plain text. Newest first.
 
+### v1.2.1
+
+```
+More reliable restore: pinned tabs the browser has not loaded yet, at startup or after being discarded, are now sent to their pinned URL instead of being reloaded, which could leave an old cached page. Still zero network requests.
+```
+
 ### v1.2.0
 
 ```

@@ -138,6 +138,12 @@ build is a plain esbuild bundle plus static asset copies.
 
 > Paste the latest entry into the version's "Release notes" / "What's new" field. Newest first.
 
+### v1.2.1
+
+```
+Fixed "Restore pinned tabs on startup": pinned tabs that Firefox had not finished restoring were left on their old cached page instead of being reloaded. Every pinned tab is now refreshed at startup. Idle and manual restore also work on tabs Firefox has unloaded. Still zero network requests.
+```
+
 ### v1.2.0
 
 ```

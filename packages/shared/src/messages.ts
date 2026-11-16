@@ -4,7 +4,8 @@
 //   popup → background    list-pins, update-pin, restore-pin, restore-all
 //   content → background  get-link-policy (am I in a pinned tab that opens
 //                         external links in new tabs?), open-link
-//   background → content  link-policy (the tab's option or a global setting changed)
+//   background → content  link-policy (the tab's option or a global setting changed),
+//                         page-probe (answered only by a tab that has loaded its page)
 
 import type { PinConfig, PinPatch } from "./pins";
 
@@ -30,6 +31,8 @@ export interface LinkPolicy {
 }
 
 export type Push = { type: "link-policy" } & LinkPolicy;
+
+export const PAGE_PROBE = "page-probe";
 
 export function isRequest(value: unknown): value is Request {
   if (typeof value !== "object" || value === null) return false;

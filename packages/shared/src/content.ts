@@ -3,14 +3,15 @@
 // tab instead of navigating the pinned one. Same-site links, modified clicks,
 // downloads and links that already target another frame are left alone.
 
-import { isPush, sendRequest, type LinkPolicy } from "./messages";
+import { isPush, PAGE_PROBE, sendRequest, type LinkPolicy } from "./messages";
 import { isSameSite } from "./sites";
 
 let policy: LinkPolicy = { enabled: false, subdomainsAreSameSite: true };
 
 export function runContent(): void {
-  chrome.runtime.onMessage.addListener((message: unknown) => {
-    if (isPush(message)) policy = message;
+  chrome.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) => {
+    if (message === PAGE_PROBE) sendResponse(true);
+    else if (isPush(message)) policy = message;
   });
   sendRequest<LinkPolicy | undefined>({ type: "get-link-policy" })
     .then((current) => {
